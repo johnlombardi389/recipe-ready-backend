@@ -21,7 +21,8 @@ from recipeready import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/ingredients', views.ingredients, name='ingredients')
+    path('api/ingredients/', views.ingredients, name='ingredients-list'),
+    path('api/ingredients/<int:id>/', views.ingredients, name='ingredient-detail'),
 ]
 
 
