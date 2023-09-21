@@ -16,9 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from recipeready.models import Ingredient
+from .models import Ingredient
+from recipeready import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/ingredients', views.ingredients, name='ingredients')
 ]
+
+

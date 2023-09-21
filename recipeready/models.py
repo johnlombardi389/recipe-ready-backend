@@ -11,3 +11,6 @@ class Ingredient(models.Model):
         if not self.purchase_date:
             self.purchase_date = timezone.now().date()
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
