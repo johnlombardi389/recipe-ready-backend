@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET', 'POST', 'DELETE'])
 def ingredients(request, id=None):
     if request.method == 'GET':
         if id is not None:
@@ -28,3 +28,12 @@ def ingredients(request, id=None):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Ingredient.DoesNotExist:
             return Response({'error': 'Ingredient not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+    elif request.method == 'POST':
+        serializer = IngredientSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'ingredient': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

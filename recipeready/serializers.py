@@ -5,3 +5,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
+        extra_kwargs = {
+            'purchase_date': {'required': False}
+        }
