@@ -37,3 +37,22 @@ def ingredients(request, id=None):
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+@api_view(['GET', 'PUT'])
+def ingredient_detail(request, id):
+    try:
+        ingredient = Ingredient.objects.get(pk=id)
+    except Ingredient.DoesNotExist:
+        return Response({'error': 'Ingredient not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = IngredientSerializer(ingredient)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = IngredientSerializer(ingredient, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
