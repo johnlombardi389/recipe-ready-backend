@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'POST'])
 def ingredients(request, id=None):
     if request.method == 'GET':
         if id is not None:
@@ -21,14 +21,6 @@ def ingredients(request, id=None):
              serializer = IngredientSerializer(data, many=True)
              return Response({'ingredients': serializer.data})
         
-    elif request.method == 'DELETE':
-        try:
-            ingredient = Ingredient.objects.get(pk=id)
-            ingredient.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Ingredient.DoesNotExist:
-            return Response({'error': 'Ingredient not found'}, status=status.HTTP_404_NOT_FOUND)
-        
     elif request.method == 'POST':
         serializer = IngredientSerializer(data=request.data)
         if serializer.is_valid():
@@ -39,7 +31,7 @@ def ingredients(request, id=None):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 def ingredient_detail(request, id):
     try:
         ingredient = Ingredient.objects.get(pk=id)
@@ -56,3 +48,11 @@ def ingredient_detail(request, id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        try:
+            ingredient = Ingredient.objects.get(pk=id)
+            ingredient.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Ingredient.DoesNotExist:
+            return Response({'error': 'Ingredient not found'}, status=status.HTTP_404_NOT_FOUND)
