@@ -18,11 +18,15 @@ from django.contrib import admin
 from django.urls import path
 from .models import Ingredient
 from recipeready import views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
+    path('api/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('admin/', admin.site.urls),
     path('api/ingredients/', views.ingredients, name='ingredients-list'),
     path('api/ingredients/<int:id>/', views.ingredient_detail, name='ingredient-detail'),
+    path('api/register/', views.register, name='register')
 ]
 
 
