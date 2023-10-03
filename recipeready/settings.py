@@ -19,19 +19,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=o=9cx-a0zp68ay5b)3%=^oiian*kb6o^2r)zk!g4!#1845p6('
+# # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+
+
+from decouple import config
+
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'ROTATE_REFRESH_TOKENS': True
+    'ROTATE_REFRESH_TOKENS': True,
+    'SLIDING_TOKEN_REFRESH_SCOPE': None,
+    'SLIDING_TOKEN_ROTATE_REFRESH_TOKENS': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 
@@ -40,6 +53,7 @@ SIMPLE_JWT = {
 INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
+    'rest_framework_simplejwt',
     'recipeready',
     'django.contrib.admin',
     'django.contrib.auth',

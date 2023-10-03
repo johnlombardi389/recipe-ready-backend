@@ -1,7 +1,9 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Ingredient(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     purchase_date = models.DateField(null=True, blank=True)
     # user_id
@@ -11,6 +13,7 @@ class Ingredient(models.Model):
         if not self.purchase_date:
             self.purchase_date = timezone.now().date()
         super().save(*args, **kwargs)
-
+ 
     def __str__(self):
         return self.name
+    

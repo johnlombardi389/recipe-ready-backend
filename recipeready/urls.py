@@ -17,16 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .models import Ingredient
-from recipeready import views
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from . import views
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 urlpatterns = [
-    path('api/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/register', views.register_user, name='register_user'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('admin/', admin.site.urls),
     path('api/ingredients/', views.ingredients, name='ingredients-list'),
     path('api/ingredients/<int:id>/', views.ingredient_detail, name='ingredient-detail'),
-    path('api/register/', views.register, name='register')
+    path('api/user/', views.UserInfo.as_view(), name='user-info'),
 ]
-
-
