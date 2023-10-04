@@ -9,6 +9,12 @@ from django.contrib.auth import login
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.http import HttpRequest
+from django.middleware.csrf import CsrfViewMiddleware
+import json
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(['GET', 'POST'])
@@ -61,19 +67,77 @@ def ingredient_detail(request, id):
             return Response({'error': 'Ingredient not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_user(request):
+    if request.method == 'POST':
+        data = request.data
+        username = data.get('username')
+        password = data.get('password')
+
+        # Authenticate the user
+        authenticated_user = authenticate(request=request, username=username, password=password)
+
+        if authenticated_user is not None:
+            # Generate authentication tokens
+            refresh = RefreshToken.for_user(authenticated_user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            return Response({
+                'access': access_token,
+                'refresh': refresh_token,
+            }, status=status.HTTP_200_OK)
+        
+        return Response({'error': 'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
     if request.method == 'POST':
         data = request.data
+        username = data.get('username')
         password = data.get('password')
-        data['password'] = make_password(password)
-        serializer = UserSerializer(data=data)
-        if serializer.is_valid():
-            user = serializer.save()
-            login(request, user)
-            return Response({'message': 'User registered and logged in successfully'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        email = data.get('email')
+
+        # Check if a user with the provided username already exists
+        existing_user = User.objects.filter(username=username).first()
+        if existing_user:
+            return Response({'error': 'User with this username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create a new user
+        user = User.objects.create(username=username, password=make_password(password), email=email)
+
+        # Generate authentication tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        return Response({
+            'access': access_token,
+            'refresh': refresh_token,
+        }, status=status.HTTP_201_CREATED)
+
+    return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+# old register_user view
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def register_user(request):
+#     if request.method == 'POST':
+#         data = request.data
+#         password = data.get('password')
+#         data['password'] = make_password(password)
+#         serializer = UserSerializer(data=data)
+#         if serializer.is_valid():
+#             user = serializer.save()
+#             login(request, user)
+#             return Response({'message': 'User registered and logged in successfully'}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 
