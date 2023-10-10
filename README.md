@@ -55,7 +55,7 @@ The front-end of this project is built using React and JavaScript, while being s
 
 ### Front-End Repo
 
-- [Repository]
+- [Repository](https://github.com/johnlombardi389/recipe-ready)
 
 ## Author
 
