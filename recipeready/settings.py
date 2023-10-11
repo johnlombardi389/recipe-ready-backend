@@ -37,7 +37,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=45),
     'ROTATE_REFRESH_TOKENS': True,
     'SLIDING_TOKEN_REFRESH_SCOPE': None,
     'SLIDING_TOKEN_ROTATE_REFRESH_TOKENS': False,
