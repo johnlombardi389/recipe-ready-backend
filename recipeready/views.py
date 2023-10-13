@@ -1,6 +1,5 @@
 from .models import Ingredient
 from .serializers import IngredientSerializer, UserSerializer
-from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,12 +8,9 @@ from django.contrib.auth import login
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView
-from django.http import HttpRequest
-from django.middleware.csrf import CsrfViewMiddleware
-import json
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .permissions import IsIngredientOwner
 
 
 @api_view(['GET', 'POST'])
@@ -36,7 +32,7 @@ def ingredients(request, id=None):
         
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsIngredientOwner])
 def ingredient_detail(request, id):
     try:
         ingredient = Ingredient.objects.get(pk=id)
@@ -122,24 +118,6 @@ def register_user(request):
         }, status=status.HTTP_201_CREATED)
 
     return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-# old register_user view
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def register_user(request):
-#     if request.method == 'POST':
-#         data = request.data
-#         password = data.get('password')
-#         data['password'] = make_password(password)
-#         serializer = UserSerializer(data=data)
-#         if serializer.is_valid():
-#             user = serializer.save()
-#             login(request, user)
-#             return Response({'message': 'User registered and logged in successfully'}, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
 
 class UserInfo(APIView):
     permission_classes = [IsAuthenticated]

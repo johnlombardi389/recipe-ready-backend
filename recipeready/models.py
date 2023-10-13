@@ -6,7 +6,6 @@ class Ingredient(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     purchase_date = models.DateField(null=True, blank=True)
-    # user_id
 
     def save(self, *args, **kwargs):
         # Update the purchase_date to the current date if it hasn't been set by the user
