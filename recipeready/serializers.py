@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Ingredient
+from .models import Ingredient, ShoppingListItem, UserProfile
 from django.contrib.auth.models import User
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -23,3 +23,13 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+
+class ShoppingListItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingListItem
+        fields = '__all__'
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = '__all__'

@@ -1,5 +1,5 @@
-from .models import Ingredient
-from .serializers import IngredientSerializer, UserSerializer
+from .models import Ingredient, ShoppingListItem, UserProfile
+from .serializers import IngredientSerializer, UserSerializer, ShoppingListItemSerializer, UserProfileSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -126,3 +126,60 @@ class UserInfo(APIView):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
+    
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def shopping_list_items(request):
+    if request.method == 'GET':
+        items = ShoppingListItem.objects.filter(user=request.user)
+        serializer = ShoppingListItemSerializer(items, many=True)
+        return Response({'shopping_list_items': serializer.data})
+    
+    elif request.method == 'POST':
+        # Create a shopping list item for the authenticated user
+        serializer = ShoppingListItemSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response({'shopping_list_item': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def shopping_list_item_detail(request, id):
+    try:
+        item = ShoppingListItem.objects.get(pk=id)
+    except ShoppingListItem.DoesNotExist:
+        return Response({'error': 'Shopping list item not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the item belongs to the authenticated user
+    if item.user != request.user:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'DELETE':
+        try:
+            item = ShoppingListItem.objects.get(pk=id)
+            item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ShoppingListItem.DoesNotExist:
+            return Response({'error': 'Shopping list item not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = UserProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
