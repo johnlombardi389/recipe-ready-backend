@@ -1,10 +1,9 @@
-from .models import Ingredient, ShoppingListItem, UserProfile
-from .serializers import IngredientSerializer, UserSerializer, ShoppingListItemSerializer, UserProfileSerializer
+from .models import Ingredient, ShoppingListItem
+from .serializers import IngredientSerializer, UserSerializer, ShoppingListItemSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.contrib.auth import login
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
@@ -136,13 +135,31 @@ def shopping_list_items(request):
         return Response({'shopping_list_items': serializer.data})
     
     elif request.method == 'POST':
-        # Create a shopping list item for the authenticated user
-        serializer = ShoppingListItemSerializer(data=request.data)
+        data = request.data
+        item_name = data.get('item')
+
+        if not item_name:
+            return Response({'error': 'Item name is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if item name already exists
+        existing_item = ShoppingListItem.objects.filter(user=request.user, item=item_name).first()
+        if existing_item:
+            # Item already exists then ignore it
+            return Response({'message': 'Item already exists in the shopping list'})
+        
+        serializer = ShoppingListItemSerializer(data={'item': item_name, 'user': request.user.id})
         if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response({'shopping_list_item': serializer.data}, status=status.HTTP_201_CREATED)
+            serializer.save()
+            return Response({'message': 'Item added to shopping list'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # # Create a shopping list item for the authenticated user
+        # serializer = ShoppingListItemSerializer(data=request.data)
+        # if serializer.is_valid():
+        #     serializer.save(user=request.user)
+        #     return Response({'shopping_list_item': serializer.data}, status=status.HTTP_201_CREATED)
+        # else:
+        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -163,23 +180,3 @@ def shopping_list_item_detail(request, id):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ShoppingListItem.DoesNotExist:
             return Response({'error': 'Shopping list item not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-
-@api_view(['GET', 'PUT'])
-@permission_classes([IsAuthenticated])
-def user_profile(request):
-    try:
-        profile = UserProfile.objects.get(user=request.user)
-    except UserProfile.DoesNotExist:
-        return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = UserProfileSerializer(profile)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        serializer = UserProfileSerializer(profile, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
