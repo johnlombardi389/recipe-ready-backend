@@ -32,5 +32,4 @@ urlpatterns = [
     path('api/user/', views.UserInfo.as_view(), name='user-info'),
     path('api/shopping-list/', views.shopping_list_items, name='shopping-list-items'),
     path('api/shopping-list/<int:id>/', views.shopping_list_item_detail, name='shopping-list-item-detail'),
-    # path('api/user-profile/', views.user_profile, name='user-profile'),
 ]

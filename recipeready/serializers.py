@@ -28,8 +28,3 @@ class ShoppingListItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingListItem
         fields = '__all__'
-
-# class UserProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserProfile
-#         fields = '__all__'

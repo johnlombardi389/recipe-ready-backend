@@ -19,10 +19,3 @@ class Ingredient(models.Model):
 class ShoppingListItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shopping_list')
     item = models.CharField(max_length=100)
-
-# class UserProfile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     saved_recipes_data = models.JSONField(blank=True, null=True)
-
-#     def __str__(self):
-#         return self.user.username

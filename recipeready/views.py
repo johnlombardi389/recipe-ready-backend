@@ -153,13 +153,6 @@ def shopping_list_items(request):
             return Response({'message': 'Item added to shopping list'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # # Create a shopping list item for the authenticated user
-        # serializer = ShoppingListItemSerializer(data=request.data)
-        # if serializer.is_valid():
-        #     serializer.save(user=request.user)
-        #     return Response({'shopping_list_item': serializer.data}, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
