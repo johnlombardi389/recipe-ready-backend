@@ -10,7 +10,6 @@ Effortlessly organize your kitchen, get instant recipes tailored to your ingredi
 - [Project Details](#project-details)
   - [Tech Toolkit](#tech-toolkit)
   - [Sample Code](#sample-code)
-- [Photos](#photos)
 - [Front-End](#back-end)
 - [Author](#author)
 
@@ -72,7 +71,9 @@ Back-End Tools:
 - Python
 - Django
 - REST Framework
+- REST API
 - Git
+- PythonAnywhere
 
 Front-End Tools:
 
@@ -88,11 +89,27 @@ Front-End Tools:
 
 ### Sample Code
 
+#### Define Model
+
 ```python
-print("Hello")
+class Ingredient(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    purchase_date = models.DateField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Update the purchase_date to the current date if it hasn't been set by the user
+        if not self.purchase_date:
+            self.purchase_date = timezone.now().date()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 ```
 
-### Photos
+Here I define a model to handle pantry ingredients owned by users. 3 different fields are set, the user who owns this ingredient, the name of the ingredient, and the purchase_date of the ingredient.
+
+This code ensures that pantry ingredients in the Django application are associated with the user who added them, and it automatically sets the purchase date to the current date if the user hasn't specified one. The customization in the save method simplifies the process for users, providing a default value for the purchase date and making it more convenient to manage and display pantry ingredients in the application.
 
 ### Front-End
 
